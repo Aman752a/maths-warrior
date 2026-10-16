@@ -14,13 +14,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Extract Flutter project
-        run: |
-          mkdir project
-          unzip -q maths_warrior_build49_release_candidate.zip -d project
-          cp -R project/* .
-          rm -rf project
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -28,17 +21,32 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Create fresh Flutter Android project
+        run: |
+          mkdir source
+          unzip -q maths_warrior_build49_release_candidate.zip -d source
+
+          mkdir fresh
+          cd fresh
+          flutter create --platforms=android --project-name maths_warrior --org com.mathswarrior .
+
+          cd ..
+          cp -R source/* fresh/
+
       - name: Flutter Pub Get
+        working-directory: fresh
         run: flutter pub get
 
       - name: Flutter Analyze
+        working-directory: fresh
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Build APK
+        working-directory: fresh
         run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: maths-warrior-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: fresh/build/app/outputs/flutter-apk/app-release.apk
