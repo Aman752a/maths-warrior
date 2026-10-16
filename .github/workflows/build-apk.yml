@@ -31,8 +31,7 @@ jobs:
           flutter create --platforms=android --project-name maths_warrior --org com.mathswarrior .
 
           
-
-
+          cp -R source/. fresh/
 - name: Flutter Pub Get
   working-directory: fresh
   run: flutter pub get
